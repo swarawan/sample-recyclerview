@@ -2,12 +2,14 @@ package com.swarawan.sample
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.StaggeredGridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     private var stockAdapter: StockAdapter? = null
+    private var linearLayoutManager = LinearLayoutManager(this@MainActivity)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -16,16 +18,30 @@ class MainActivity : AppCompatActivity() {
         stockAdapter = StockAdapter(mutableListOf())
         recyclerViewStock.apply {
             adapter = stockAdapter
-            layoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
+            layoutManager = linearLayoutManager
         }
 
-        stockAdapter?.newList(getData())
+        setupScrollListener()
+        loadData()
     }
 
-    private fun getData(): MutableList<Stock> =
-            mutableListOf<Stock>().apply {
-                add(Stock(1, "Remote TV", 10, 10000))
-                add(Stock(1, "Handphone", 9, 2000000))
-                add(Stock(1, "Aqua", 29, 2500))
+    private fun setupScrollListener() {
+        recyclerViewStock.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val visibleItemCount = linearLayoutManager.childCount
+                val totalItemCount = linearLayoutManager.itemCount
+                val firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition()
+
+                if (firstVisibleItemPosition + visibleItemCount >= totalItemCount) {
+                    loadData()
+                }
             }
+        })
+    }
+
+    fun loadData() {
+        stockAdapter?.updateList(Stock.getData())
+    }
 }

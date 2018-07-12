@@ -26,4 +26,9 @@ class StockAdapter(private val stocks: MutableList<Stock>) : RecyclerView.Adapte
         stocks.addAll(list)
         notifyDataSetChanged()
     }
+
+    fun updateList(list: MutableList<Stock>) {
+        stocks.addAll(list)
+        notifyDataSetChanged()
+    }
 }
